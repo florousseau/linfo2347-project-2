@@ -1,6 +1,6 @@
 table ip scan_protection {
     chain forward {
-        type filter hook forward priority 1; policy accept;
+        type filter hook forward priority -1; policy accept;
 
         ip saddr 10.2.0.0/24 ip daddr 10.12.0.0/24 tcp flags & syn == syn meter scan_detect { ip saddr limit rate 3/second burst 5 packets } drop
 
