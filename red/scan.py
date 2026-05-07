@@ -3,26 +3,26 @@ import argparse
 from scapy.all import ICMP, IP, TCP, UDP, send, sr1
 
 
-def scan_host(ip, port_range, mode):
+def scan_host(ip, port_range, mode, timeout):
     start, end = port_range
     open_ports = {"tcp": [], "udp": []}
 
     for port in range(start, end + 1):
         if mode in ("tcp", "both"):
-            state = tcp_syn_scan(ip, port)
+            state = tcp_syn_scan(ip, port, timeout)
             if state == "open":
                 open_ports["tcp"].append(port)
         if mode in ("udp", "both"):
-            state = udp_scan(ip, port)
+            state = udp_scan(ip, port, timeout)
             if state in ("open", "open|filtered"):
                 open_ports["udp"].append(port)
 
     return open_ports
 
 
-def tcp_syn_scan(ip, port):
+def tcp_syn_scan(ip, port, timeout):
     packet = IP(dst=ip) / TCP(dport=port, flags="S")
-    response = sr1(packet, timeout=1, verbose=0)
+    response = sr1(packet, timeout=timeout, verbose=0)
 
     if response is None:
         return "filtered"
@@ -38,9 +38,9 @@ def tcp_syn_scan(ip, port):
     return "filtered"
 
 
-def udp_scan(ip, port):
+def udp_scan(ip, port, timeout):
     packet = IP(dst=ip) / UDP(dport=port)
-    response = sr1(packet, timeout=1, verbose=0)
+    response = sr1(packet, timeout=timeout, verbose=0)
 
     if response is None:
         return "open|filtered"
@@ -58,13 +58,12 @@ def main():
     parser.add_argument("--ports", default="1-100")
     parser.add_argument("--mode", default="tcp", choices=["tcp", "udp", "both"])
     parser.add_argument("--targets", nargs="+", default=None)
+    parser.add_argument("--timeout", type=float, default=1.0)  # en secondes
     args = parser.parse_args()
 
-    # parse le port range
     start, end = map(int, args.ports.split("-"))
     port_range = (start, end)
 
-    # targets par défaut si pas spécifié
     default_targets = [
         ("http", "10.12.0.10"),
         ("dns", "10.12.0.20"),
@@ -81,7 +80,7 @@ def main():
 
     for label, ip in targets:
         print(f"Scanning {label} ({ip})...")
-        result = scan_host(ip, port_range, args.mode)
+        result = scan_host(ip, port_range, args.mode, args.timeout)
         print(f"Open TCP ports: {result['tcp']}")
         print(f"Open UDP ports: {result['udp']}\n")
 
