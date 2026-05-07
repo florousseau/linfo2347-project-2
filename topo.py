@@ -67,6 +67,10 @@ def add_routes(net):
     ### STATIC ROUTES ###
     info(net['r1'].cmd("ip route add 10.2.0.0/24 via 10.12.0.2 dev r1-eth12"))
     info(net['r2'].cmd("ip route add 10.1.0.0/24 via 10.12.0.1 dev r2-eth12"))
+    
+    # Add static routes on hosts to reach the other subnet
+    for host in ['http', 'dns', 'ntp', 'ftp']:
+        info(net[host].cmd("ip route add 10.1.0.0/24 via 10.12.0.1"))
 
 
 def start_services(net: Mininet) -> None:
