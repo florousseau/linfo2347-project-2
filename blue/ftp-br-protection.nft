@@ -1,0 +1,7 @@
+table ip ftp_bf_protection {
+    chain forward {
+        type filter hook forward priority -1; policy accept;
+
+        tcp dport 21 ct state new meter ftp_bf { ip saddr limit rate over 2/minute } drop
+    }
+}
