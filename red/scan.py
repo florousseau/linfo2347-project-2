@@ -1,17 +1,21 @@
+import argparse
+
 from scapy.all import ICMP, IP, TCP, UDP, send, sr1
 
 
-def scan_host(ip, port_range):
+def scan_host(ip, port_range, mode):
     start, end = port_range
     open_ports = {"tcp": [], "udp": []}
 
     for port in range(start, end + 1):
-        state = tcp_syn_scan(ip, port)
-        if state == "open":
-            open_ports["tcp"].append(port)
-        state = udp_scan(ip, port)
-        if state in ("open", "open|filtered"):
-            open_ports["udp"].append(port)
+        if mode in ("tcp", "both"):
+            state = tcp_syn_scan(ip, port)
+            if state == "open":
+                open_ports["tcp"].append(port)
+        if mode in ("udp", "both"):
+            state = udp_scan(ip, port)
+            if state in ("open", "open|filtered"):
+                open_ports["udp"].append(port)
 
     return open_ports
 
@@ -50,23 +54,34 @@ def udp_scan(ip, port):
 
 
 def main():
-    port_range = (1, 100)
-    targets = [
+    parser = argparse.ArgumentParser(description="Port scanner")
+    parser.add_argument("--ports", default="1-100")
+    parser.add_argument("--mode", default="tcp", choices=["tcp", "udp", "both"])
+    parser.add_argument("--targets", nargs="+", default=None)
+    args = parser.parse_args()
+
+    # parse le port range
+    start, end = map(int, args.ports.split("-"))
+    port_range = (start, end)
+
+    # targets par défaut si pas spécifié
+    default_targets = [
         ("http", "10.12.0.10"),
         ("dns", "10.12.0.20"),
         ("ntp", "10.12.0.30"),
         ("ftp", "10.12.0.40"),
-        ("internet", "10.2.0.2"),
         ("ws2", "10.1.0.2"),
         ("ws3", "10.1.0.3"),
     ]
 
-    results = {}
+    if args.targets:
+        targets = [(ip, ip) for ip in args.targets]
+    else:
+        targets = default_targets
 
     for label, ip in targets:
         print(f"Scanning {label} ({ip})...")
-        result = scan_host(ip, port_range)
-        results[(ip, label)] = result
+        result = scan_host(ip, port_range, args.mode)
         print(f"Open TCP ports: {result['tcp']}")
         print(f"Open UDP ports: {result['udp']}\n")
 
