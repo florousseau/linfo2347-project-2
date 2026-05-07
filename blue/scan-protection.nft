@@ -1,0 +1,9 @@
+table ip scan_protection {
+    chain forward {
+        type filter hook forward priority 1; policy accept;
+
+        ip saddr 10.2.0.0/24 ip daddr 10.12.0.0/24 tcp flags & syn == syn meter scan_detect { ip saddr limit rate 10/second burst 20 packets } drop
+
+        ip saddr 10.2.0.0/24 ip daddr 10.12.0.0/24 ip protocol udp reject with icmp type port-unreachable
+    }
+}
