@@ -22,8 +22,8 @@ def try_ssh(ip, port, username, password):
 def main():
     ip = "10.12.0.10"
     port = 22
-    users = "bf/users.txt"
-    passwords = "bf/passwords.txt"
+    users = "/bf/users.txt"
+    passwords = "/bf/passwords.txt"
 
     with open(users, "r") as f:
         usernames = [line.strip() for line in f]
@@ -39,6 +39,7 @@ def main():
                 break
         if found:
             break
+
 
 if __name__ == "__main__":
     main()
