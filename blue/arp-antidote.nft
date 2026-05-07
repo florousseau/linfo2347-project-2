@@ -1,0 +1,7 @@
+table arp arp_antidote {
+    chain input {
+        type filter hook input priority 0; policy accept;
+
+        arp operation reply arp saddr ip 10.1.0.1 arp saddr ether != 1a:43:6e:e3:dc:a4 drop
+    }
+}
