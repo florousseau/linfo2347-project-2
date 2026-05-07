@@ -4,7 +4,7 @@ table ip r1_firewall {
     chain input {
         type filter hook input priority 0; policy drop;
         
-        ct state invlaid drop
+        ct state invalid drop
         ct state {established, related} accept
 
         icmp type echo-request accept # allow pinging
@@ -15,7 +15,7 @@ table ip r1_firewall {
     chain forward {
         type filter hook forward priority 0; policy drop;
 
-        ct state invlaid drop
+        ct state invalid drop
         ct state {established, related} accept
 
         ip saddr 10.1.0.0/24 ip daddr 10.12.0.0/24 ct state new accept # ws -> dmz (ws can init)
