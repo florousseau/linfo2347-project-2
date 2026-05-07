@@ -1,0 +1,7 @@
+table ip ssh_bf_protection {
+    chain forward {
+        type filter hook forward priority -1; policy accept;
+
+        tcp dport 22 ct state new meter ssh_bf { ip saddr limit rate over 2/minute } drop
+    }
+}
