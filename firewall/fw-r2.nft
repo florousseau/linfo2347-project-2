@@ -1,0 +1,30 @@
+flush ruleset
+
+table ip r2_firewall {
+
+    chain input {
+        type filter hook input priority 0; policy drop;
+
+        ct state invalid drop
+        ct state {established, related} accept
+
+        icmp type echo-request accept
+
+        tcp dport 22 accept
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+
+        ct state invalid drop
+        ct state {established, related} accept
+
+        ip saddr 10.2.0.0/24 ip daddr 10.12.0.0/24 ct state new accept # internet -> dmz (can init)
+        ip saddr 10.12.0.0/24 ip daddr 10.2.0.0/24 ct state new drop # dmz -> internet (cannot init)
+        ip saddr 10.2.0.0/24 ip daddr 10.1.0.0/24 ct state new drop # internet -> ws (cannot init)
+    }
+
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}
