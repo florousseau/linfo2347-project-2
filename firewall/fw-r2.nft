@@ -20,6 +20,8 @@ table ip r2_firewall {
         ct state {established, related} accept
 
         ip saddr 10.2.0.0/24 ip daddr 10.12.0.0/24 ct state new accept # internet -> dmz (can init)
+        ip saddr 10.1.0.0/24 ip daddr 10.2.0.0/24 ct state new accept # ws -> internet (can init)
+
         ip saddr 10.12.0.0/24 ip daddr 10.2.0.0/24 ct state new drop # dmz -> internet (cannot init)
         ip saddr 10.2.0.0/24 ip daddr 10.1.0.0/24 ct state new drop # internet -> ws (cannot init)
     }
