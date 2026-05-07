@@ -1,4 +1,5 @@
 import argparse
+
 import paramiko
 
 
@@ -24,9 +25,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ip", default="10.12.0.10")
     parser.add_argument("--port", type=int, default=22)
-    parser.add_argument("--users", default="/home/mininet/LINFO2347/repo/bf/users.txt")
     parser.add_argument(
-        "--passwords", default="/home/mininet/LINFO2347/repo/bf/passwords.txt"
+        "--users", default="/home/mininet/LINFO2347/repo/red/bf/users.txt"
+    )
+    parser.add_argument(
+        "--passwords", default="/home/mininet/LINFO2347/repo/red/bf/passwords.txt"
     )
     args = parser.parse_args()
 
